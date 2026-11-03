@@ -1,6 +1,13 @@
 import os
+import sys
 from pathlib import Path
 from typing import Any, Optional
+
+# Ensure repository root is on sys.path so `from backend.*` imports always resolve
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -171,4 +178,4 @@ def call_mcp_endpoint(payload: MCPToolCallRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)

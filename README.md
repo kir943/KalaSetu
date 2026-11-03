@@ -122,10 +122,12 @@ HOST=0.0.0.0
 ```
 *Security Note*: `backend/.env` and all `.env` files are ignored by Git. The API key is read exclusively by the Python backend and is never sent to or exposed in the React frontend.
 
-### Step 2: Install & Run the Backend
+### Step 2: Install & Run the Backend (From Repository Root)
+> **Important**: Because the backend uses package-qualified imports (`from backend.retrieval import ...`), always run the `uvicorn` launch command from the **repository root directory** (`KalaSetu/`), not from inside `backend/`.
+
 ```powershell
 pip install -r backend/requirements.txt
-python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
+python -m uvicorn backend.main:app --reload --port 8000
 ```
 Verify the backend health check at `http://127.0.0.1:8000/api/health`.
 
