@@ -1,11 +1,41 @@
 import json
+import os
 import re
+import shutil
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-DEFAULT_ARCHIVE_PATH = Path(__file__).resolve().parent / "data" / "archive.json"
+SEED_ARCHIVE_PATH = Path(__file__).resolve().parent / "data" / "archive.json"
+DEFAULT_ARCHIVE_PATH = SEED_ARCHIVE_PATH
+
+
+def resolve_archive_path(archive_path: Optional[Path] = None) -> Path:
+    """
+    Resolve the active archive JSON file path.
+    1. If an explicit `archive_path` argument is passed (e.g., in tests), use it.
+    2. If `DEFAULT_ARCHIVE_PATH` was patched in tests to a custom path, use it.
+    3. If `ARCHIVE_DATA_PATH` environment variable is set (for persistent volume storage in
+       production deployments), use that path and automatically seed it from `SEED_ARCHIVE_PATH`
+       on first boot if the persistent file does not exist yet.
+    4. Otherwise fall back to `DEFAULT_ARCHIVE_PATH` (`backend/data/archive.json`).
+    """
+    if archive_path is not None:
+        return Path(archive_path)
+
+    if DEFAULT_ARCHIVE_PATH != SEED_ARCHIVE_PATH:
+        return Path(DEFAULT_ARCHIVE_PATH)
+
+    env_path_str = os.getenv("ARCHIVE_DATA_PATH", "").strip()
+    if env_path_str:
+        target = Path(env_path_str)
+        if not target.exists() and SEED_ARCHIVE_PATH.exists():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(SEED_ARCHIVE_PATH, target)
+        return target
+
+    return Path(DEFAULT_ARCHIVE_PATH)
 
 STOPWORDS = {
     "a", "an", "and", "are", "as", "at", "be", "by", "can", "do", "does",
@@ -31,7 +61,7 @@ GENERIC_CRAFT_TERMS = {
 
 
 def load_archive(archive_path: Optional[Path] = None) -> list[dict[str, Any]]:
-    path = Path(archive_path) if archive_path else DEFAULT_ARCHIVE_PATH
+    path = resolve_archive_path(archive_path)
     if not path.exists():
         return []
     with open(path, "r", encoding="utf-8") as f:
@@ -299,7 +329,7 @@ def add_oral_entry(
         if not val or not str(val).strip():
             raise ValueError(f"Missing or empty required field: '{field}'")
 
-    path = Path(archive_path) if archive_path else DEFAULT_ARCHIVE_PATH
+    path = resolve_archive_path(archive_path)
     entries = load_archive(path)
 
     entry_id = str(entry.get("id", "")).strip() or f"oral-{uuid.uuid4().hex[:8]}"

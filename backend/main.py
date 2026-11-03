@@ -10,10 +10,11 @@ if str(REPO_ROOT) not in sys.path:
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
-from backend.retrieval import add_oral_entry, format_citation, get_lesson, load_archive
+from backend.retrieval import add_oral_entry, format_citation, get_lesson, load_archive, resolve_archive_path
 from backend.saaras import transcribe_audio_with_saaras
 from backend.qa import answer_learner_question, run_grounding_benchmark
 from backend.tts import synthesize_speech_with_bulbul
@@ -31,11 +32,15 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# CORS setup
+# Configurable production CORS setup via ALLOWED_ORIGINS env variable (comma-separated URLs or '*')
+raw_origins = os.getenv("ALLOWED_ORIGINS", "*").strip()
+allowed_origins = [o.strip() for o in raw_origins.split(",") if o.strip()] or ["*"]
+allow_credentials = False if allowed_origins == ["*"] else True
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -77,10 +82,12 @@ class MCPToolCallRequest(BaseModel):
 @app.get("/api/health")
 def health_check():
     api_key_set = bool(os.getenv("SARVAM_API_KEY") and len(os.getenv("SARVAM_API_KEY", "").strip()) > 5)
+    persistent_env_set = bool(os.getenv("ARCHIVE_DATA_PATH", "").strip())
     return {
         "status": "ok",
         "app": "KalaSetu v2",
-        "sarvam_configured": api_key_set
+        "sarvam_configured": api_key_set,
+        "archive_storage_mode": "persistent_volume" if persistent_env_set else "local_json",
     }
 
 
@@ -181,6 +188,13 @@ def call_mcp_endpoint(payload: MCPToolCallRequest):
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
+# Optional unified static frontend serving when `frontend/dist` is built
+FRONTEND_DIST_DIR = REPO_ROOT / "frontend" / "dist"
+if FRONTEND_DIST_DIR.exists() and (FRONTEND_DIST_DIR / "index.html").exists():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIST_DIR), html=True), name="frontend")
+
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=port, reload=True)

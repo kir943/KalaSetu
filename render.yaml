@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: kalasetu-archive
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt && cd frontend && npm ci && npm run build
+    startCommand: python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    disk:
+      name: kalasetu-archive-disk
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: NODE_VERSION
+        value: 22.14.0
+      - key: ARCHIVE_DATA_PATH
+        value: /var/data/archive.json
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: SARVAM_API_KEY
+        sync: false

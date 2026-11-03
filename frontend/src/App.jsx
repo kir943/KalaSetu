@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const CRAFTS = ['Blue Pottery', 'Paithani Weaving'];
 const NO_SOURCE_FALLBACK = 'Mere paas iska source nahi hai.';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
 
 const SAMPLE_QUESTIONS = [
   {
@@ -139,7 +140,7 @@ function App() {
   const dossierRef = useRef(null);
 
   const fetchEntries = () => {
-    fetch('/api/entries')
+    fetch(`${API_BASE}/api/entries`)
       .then((res) => res.json())
       .then((data) => {
         if (data && Array.isArray(data.entries)) {
@@ -151,7 +152,7 @@ function App() {
 
   const fetchBenchmark = () => {
     setRunningBenchmark(true);
-    fetch('/api/grounding-test')
+    fetch(`${API_BASE}/api/grounding-test`)
       .then((res) => res.json())
       .then((data) => setBenchmark(data))
       .catch(() => {})
@@ -159,7 +160,7 @@ function App() {
   };
 
   useEffect(() => {
-    fetch('/api/health')
+    fetch(`${API_BASE}/api/health`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -209,7 +210,7 @@ function App() {
 
     setAsking(true);
     try {
-      const res = await fetch('/api/ask', {
+      const res = await fetch(`${API_BASE}/api/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -257,7 +258,7 @@ function App() {
     setTtsLoading(true);
 
     try {
-      const res = await fetch('/api/tts', {
+      const res = await fetch(`${API_BASE}/api/tts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -294,7 +295,7 @@ function App() {
     formData.append('language_code', 'hi-IN');
 
     try {
-      const res = await fetch('/api/transcribe', {
+      const res = await fetch(`${API_BASE}/api/transcribe`, {
         method: 'POST',
         body: formData,
       });
@@ -329,7 +330,7 @@ function App() {
 
     setTranscribing(true);
     try {
-      const res = await fetch('/api/transcribe', {
+      const res = await fetch(`${API_BASE}/api/transcribe`, {
         method: 'POST',
         body: formData,
       });
@@ -386,7 +387,7 @@ function App() {
         is_demo: false,
       };
 
-      const res = await fetch('/api/entries', {
+      const res = await fetch(`${API_BASE}/api/entries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

@@ -1,6 +1,8 @@
 import json
+import os
 from pathlib import Path
-from backend.retrieval import load_archive, search_archive, get_lesson
+from unittest.mock import patch
+from backend.retrieval import add_oral_entry, load_archive, search_archive, get_lesson
 
 
 def test_archive_contains_real_sourced_entries_without_invented_artisans():
@@ -111,3 +113,29 @@ def test_get_lesson_includes_citations_source_links_and_supported_facts():
     assert missing_lesson["citations"] == []
     assert missing_lesson["source_links"] == []
     assert missing_lesson["message"] == "Mere paas iska source nahi hai."
+
+
+def test_persistent_archive_data_path_env_seeding_and_writes(tmp_path: Path):
+    persistent_file = tmp_path / "persistent_disk" / "archive.json"
+    assert not persistent_file.exists()
+
+    with patch.dict(os.environ, {"ARCHIVE_DATA_PATH": str(persistent_file)}):
+        # First load automatically seeds the persistent disk from SEED_ARCHIVE_PATH
+        seeded_entries = load_archive()
+        assert persistent_file.exists()
+        assert len(seeded_entries) == 4
+
+        # Saving a new oral entry writes to the persistent disk without mutating repo seed file
+        saved = add_oral_entry(
+            {
+                "craft": "Blue Pottery",
+                "technique": "Persistent Volume Verification",
+                "artisan_name": "Gopal Kumhar",
+                "transcript": "Sajikhar aur Katira Gond ko paani mein bhigokar rakhte hain.",
+                "source_audio": "gopal_clip.wav",
+                "segment": "Segment 1",
+            }
+        )
+        assert saved["artisan_name"] == "Gopal Kumhar"
+        updated_entries = load_archive()
+        assert len(updated_entries) == 5
