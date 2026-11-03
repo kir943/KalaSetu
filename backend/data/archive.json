@@ -1,0 +1,54 @@
+[
+  {
+    "id": "demo-blue-pottery-01",
+    "craft": "Blue Pottery",
+    "technique": "Quartz Dough Preparation and Cobalt Glazing (Kaanch aur Quartz ki Taiyari)",
+    "steps": [
+      "Mix 40 parts powdered quartz stone (kaccha kaanch), 5 parts katira gum (gond), and 2 parts multani mitti with water.",
+      "Knead the dough thoroughly and let it rest wrapped in a damp cloth for 24 hours without using any regular potter's clay (mitti).",
+      "Press the dough into plaster of Paris moulds (saancha) and smooth the edges with a wet stone after drying.",
+      "Apply a base coat of white quartz slip (astar) and paint floral motifs using cobalt oxide for dark blue and copper oxide for turquoise.",
+      "Fire the glazed pieces in a traditional wood kiln (bhatti) at 800 to 850 degrees Celsius for 6 hours and cool for 2 days."
+    ],
+    "materials": [
+      "Powdered quartz stone (40 parts)",
+      "Katira gum (5 parts)",
+      "Multani mitti (2 parts)",
+      "Cobalt oxide (dark blue)",
+      "Copper oxide (turquoise)",
+      "Plaster of Paris moulds (saancha)"
+    ],
+    "artisan_name": "Ramesh Kumar Kumhar (DEMO)",
+    "language": "hi-IN",
+    "source_audio": "demo_ramesh_blue_pottery_seg1.wav",
+    "segment": "Segment 1 (00:00 - 01:15)",
+    "transcript": "Namaste, main Ramesh Kumar Kumhar bol raha hoon. Hamari Jaipur Blue Pottery mein aam mitti bilkul nahi lagti. Ismein 40 hissa peesa hua quartz patthar, 5 hissa katira gond, aur 2 hissa multani mitti paani ke saath mila kar aata goondhte hain. Is aate ko geele kapde mein 24 ghante rakhte hain. Phir plaster ke saanche mein dhaal kar sukhate hain. Safed quartz ka astar laga kar cobalt oxide se gehra neela aur copper oxide se firozi rang bharte hain. Aakhir mein bhatti mein 800 se 850 degree par 6 ghante pakate hain aur do din thanda hone dete hain.",
+    "created_at": "2026-11-03T10:00:00Z",
+    "is_demo": true
+  },
+  {
+    "id": "demo-paithani-01",
+    "craft": "Paithani Weaving",
+    "technique": "Kadiyal Border and Tapestry Pallu Interlocking (Kadiyal Kath aani Bangadi Mor)",
+    "steps": [
+      "Wash raw mulberry silk threads (kaccha resham) in warm water with rock salt and soda ash, then dye with natural colors.",
+      "Set up the warp (tana) on the handloom using three shuttles (teen dhote) for the Kadiyal interlocking border technique.",
+      "Interlock the border warp and body weft threads manually on the reverse side so both sides of the saree look identical.",
+      "Weave the Bangadi Mor (peacock in a bangle) motif on the pallu using small bamboo spindles (tilli) with 24-karat gold-plated silver zari."
+    ],
+    "materials": [
+      "Raw mulberry silk (kaccha resham)",
+      "24-karat gold-plated silver zari",
+      "Three wooden shuttles (teen dhote)",
+      "Bamboo spindles (tilli)",
+      "Rock salt and soda ash"
+    ],
+    "artisan_name": "Shantabai Kulkarni (DEMO)",
+    "language": "mr-IN",
+    "source_audio": "demo_shantabai_paithani_seg2.wav",
+    "segment": "Segment 2 (01:20 - 02:45)",
+    "transcript": "Namaskar, mi Shantabai Kulkarni, Yeola Paithani vinkar. Paithani saadi banavtana kachha resham garam panyat saindha namak aani khar takun dhuvun gheto. Kadiyal kathasathi magavar teen dhote vaparle jatat, jyamule kath aani pot ekach veli vinle jatat. Pallu var Bangadi Mor kadhnyasathi bambuchya lahan tillya aani chandi var sone chadhavleli zari vaparto. Paithani chi visheshta mhanje ulat aani sulat donhi bajunni saadi sarkhich diste.",
+    "created_at": "2026-11-03T10:15:00Z",
+    "is_demo": true
+  }
+]
