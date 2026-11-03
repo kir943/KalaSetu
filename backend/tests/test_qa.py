@@ -7,7 +7,7 @@ from backend.qa import NO_SOURCE_FALLBACK, run_grounding_benchmark
 client = TestClient(app)
 
 
-def test_grounded_answer_and_citation_presence():
+def test_grounded_answer_citation_and_source_links_presence():
     mock_llm_resp = MagicMock()
     mock_llm_resp.status_code = 200
     mock_llm_resp.json.return_value = {
@@ -18,8 +18,9 @@ def test_grounded_answer_and_citation_presence():
                 "message": {
                     "role": "assistant",
                     "content": (
-                        "In Jaipur Blue Pottery, 40 parts powdered quartz stone, 5 parts katira gum, "
-                        "and 2 parts multani mitti are mixed with water without regular potter's clay."
+                        "Jaipur Blue Pottery does not use natural potter's clay; its dough is prepared from "
+                        "powdered quartz stone, powdered glass, Multani Mitti (Fuller's Earth), Katira Gond "
+                        "(gum tragacanth), and Sajikhar."
                     ),
                 },
                 "finish_reason": "stop",
@@ -31,20 +32,25 @@ def test_grounded_answer_and_citation_presence():
         resp = client.post(
             "/api/ask",
             json={
-                "question": "How many parts of powdered quartz stone and katira gum are mixed?",
+                "question": "Why is Jaipur Blue Pottery considered clay-free and what raw materials are mixed to prepare its dough?",
                 "craft": "Blue Pottery",
             },
         )
         assert resp.status_code == 200
         data = resp.json()
         assert data["grounded"] is True
-        assert "40 parts powdered quartz stone" in data["answer"]
-        # Every answer must show the source artisan, recording, and segment
-        assert "Ramesh Kumar Kumhar (DEMO)" in data["answer"]
-        assert "demo_ramesh_blue_pottery_seg1.wav" in data["answer"]
-        assert "Segment 1 (00:00 - 01:15)" in data["answer"]
-        assert len(data["citations"]) == 1
-        assert len(data["sources"]) == 1
+        assert "powdered quartz stone" in data["answer"]
+        # Every answer must cite the supporting archive entry, publisher, and URL
+        assert "Blue Pottery of Jaipur — Tools, Raw Materials, and Making Process" in data["answer"]
+        assert "D'source" in data["answer"]
+        assert "https://www.dsource.in/resource/blue-pottery-jaipur/making-process" in data["answer"]
+        assert "src-blue-pottery-dsource-01" in data["answer"]
+        assert len(data["citations"]) >= 1
+        assert len(data["source_links"]) >= 1
+        assert data["source_links"][0]["source_url"] == "https://www.dsource.in/resource/blue-pottery-jaipur/making-process"
+        assert len(data["sources"]) >= 1
+        assert len(data["sources"][0]["supported_facts"]) >= 3
+        assert data["sources"][0]["excerpt"]
 
 
 def test_no_source_fallback_when_no_evidence():
@@ -61,6 +67,7 @@ def test_no_source_fallback_when_no_evidence():
     assert data["grounded"] is False
     assert data["answer"] == NO_SOURCE_FALLBACK
     assert data["citations"] == []
+    assert data["source_links"] == []
     assert data["sources"] == []
 
 
@@ -73,7 +80,7 @@ def test_api_failure_kept_distinct_from_no_source_fallback():
         resp = client.post(
             "/api/ask",
             json={
-                "question": "How many parts of quartz stone and katira gum are used?",
+                "question": "Why is Jaipur Blue Pottery considered clay-free and what raw materials are mixed?",
                 "craft": "Blue Pottery",
             },
         )

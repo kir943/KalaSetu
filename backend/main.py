@@ -51,6 +51,11 @@ class OralEntryRequest(BaseModel):
     language: str = Field(default="hi-IN")
     steps: Optional[Any] = Field(default_factory=list)
     materials: Optional[Any] = Field(default_factory=list)
+    supported_facts: Optional[Any] = Field(default_factory=list)
+    source_title: Optional[str] = Field(default=None)
+    source_organization: Optional[str] = Field(default=None)
+    source_url: Optional[str] = Field(default=None)
+    verification_status: str = Field(default="verified")
     is_demo: bool = Field(default=False)
 
 

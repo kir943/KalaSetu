@@ -1,54 +1,151 @@
 [
   {
-    "id": "demo-blue-pottery-01",
+    "id": "src-blue-pottery-dsource-01",
     "craft": "Blue Pottery",
-    "technique": "Quartz Dough Preparation and Cobalt Glazing (Kaanch aur Quartz ki Taiyari)",
+    "technique": "Clay-Free Quartz Dough Preparation, POP Molding, and Surface Finishing",
+    "record_type": "institutional_documentation",
+    "verification_status": "verified",
+    "source_title": "Blue Pottery of Jaipur — Tools, Raw Materials, and Making Process",
+    "source_organization": "D'source (IDC School of Design, IIT Bombay & NID Digital Learning Initiative)",
+    "source_url": "https://www.dsource.in/resource/blue-pottery-jaipur/making-process",
+    "supported_facts": [
+      "Jaipur Blue Pottery is crafted entirely without using ordinary potter's clay (mitti).",
+      "The dough is prepared from finely ground quartz stone powder, powdered glass (kaanch), Multani Mitti (Fuller's earth), Katira Gond (natural gum), Saaji (soda bicarbonate), and water.",
+      "Raw materials are ground in a chakki (grinder) and filtered through an iron sieve (jaali) before kneading with water.",
+      "Because the quartz dough lacks clay plasticity, forms are pressed into Plaster of Paris (POP) molds (saancha) rather than free-thrown into large vessels on a potter's wheel.",
+      "Dried molded items are trimmed with blades, rubbed on a base stone, and smoothed with sandpaper (regmaal) before coating."
+    ],
     "steps": [
-      "Mix 40 parts powdered quartz stone (kaccha kaanch), 5 parts katira gum (gond), and 2 parts multani mitti with water.",
-      "Knead the dough thoroughly and let it rest wrapped in a damp cloth for 24 hours without using any regular potter's clay (mitti).",
-      "Press the dough into plaster of Paris moulds (saancha) and smooth the edges with a wet stone after drying.",
-      "Apply a base coat of white quartz slip (astar) and paint floral motifs using cobalt oxide for dark blue and copper oxide for turquoise.",
-      "Fire the glazed pieces in a traditional wood kiln (bhatti) at 800 to 850 degrees Celsius for 6 hours and cool for 2 days."
+      "Crush and grind quartz stone, glass (kaanch), Multani Mitti, Katira Gond, and Saaji into fine powders and sieve through an iron mesh (jaali).",
+      "Mix the dry ingredients with water and knead thoroughly into a non-sticky quartz dough without any ordinary potter's clay.",
+      "Flatten and press the rested dough into Plaster of Paris (POP) molds, joining multi-part forms with dough slurry.",
+      "Dry the molded pieces, trim excess edges, rub on a base stone, and smooth the surface with sandpaper (regmaal)."
     ],
     "materials": [
-      "Powdered quartz stone (40 parts)",
-      "Katira gum (5 parts)",
-      "Multani mitti (2 parts)",
-      "Cobalt oxide (dark blue)",
-      "Copper oxide (turquoise)",
-      "Plaster of Paris moulds (saancha)"
+      "Quartz stone powder",
+      "Powdered glass (kaanch)",
+      "Multani Mitti (Fuller's earth)",
+      "Katira Gond (natural gum)",
+      "Saaji (soda bicarbonate)",
+      "Plaster of Paris (POP) molds",
+      "Regmaal (sandpaper) and iron sieve (jaali)"
     ],
-    "artisan_name": "Ramesh Kumar Kumhar (DEMO)",
-    "language": "hi-IN",
-    "source_audio": "demo_ramesh_blue_pottery_seg1.wav",
-    "segment": "Segment 1 (00:00 - 01:15)",
-    "transcript": "Namaste, main Ramesh Kumar Kumhar bol raha hoon. Hamari Jaipur Blue Pottery mein aam mitti bilkul nahi lagti. Ismein 40 hissa peesa hua quartz patthar, 5 hissa katira gond, aur 2 hissa multani mitti paani ke saath mila kar aata goondhte hain. Is aate ko geele kapde mein 24 ghante rakhte hain. Phir plaster ke saanche mein dhaal kar sukhate hain. Safed quartz ka astar laga kar cobalt oxide se gehra neela aur copper oxide se firozi rang bharte hain. Aakhir mein bhatti mein 800 se 850 degree par 6 ghante pakate hain aur do din thanda hone dete hain.",
-    "created_at": "2026-11-03T10:00:00Z",
-    "is_demo": true
+    "artisan_name": null,
+    "language": "en-IN",
+    "source_audio": null,
+    "segment": "Sections: Tools & Raw Materials; Making Process",
+    "excerpt": "Documented Craft Process (D'source, IIT Bombay / NID): Unlike conventional pottery, Blue Pottery of Jaipur uses no ordinary clay (mitti). The body dough is prepared by mixing finely ground quartz stone powder, powdered glass (kaanch), Multani Mitti (Fuller's earth), Katira Gond (natural gum), and Saaji (soda bicarbonate) with water. Because the quartz mixture lacks the plasticity of regular clay, forms are pressed into Plaster of Paris (POP) molds, dried, trimmed, and smoothed with a base stone and sandpaper (regmaal).",
+    "transcript": "Documented Craft Process (D'source, IIT Bombay / NID): Unlike conventional pottery, Blue Pottery of Jaipur uses no ordinary clay (mitti). The body dough is prepared by mixing finely ground quartz stone powder, powdered glass (kaanch), Multani Mitti (Fuller's earth), Katira Gond (natural gum), and Saaji (soda bicarbonate) with water. Because the quartz mixture lacks the plasticity of regular clay, forms are pressed into Plaster of Paris (POP) molds, dried, trimmed, and smoothed with a base stone and sandpaper (regmaal).",
+    "created_at": "2026-11-03T12:00:00Z",
+    "is_demo": false
   },
   {
-    "id": "demo-paithani-01",
-    "craft": "Paithani Weaving",
-    "technique": "Kadiyal Border and Tapestry Pallu Interlocking (Kadiyal Kath aani Bangadi Mor)",
+    "id": "src-blue-pottery-rajgov-02",
+    "craft": "Blue Pottery",
+    "technique": "Cobalt & Copper Oxide Painting, Glazing, and Low-Temperature Kiln Firing",
+    "record_type": "institutional_documentation",
+    "verification_status": "verified",
+    "source_title": "Blue Pottery of Jaipur — Art and Craft Documentation",
+    "source_organization": "Department of Industries & Commerce, Government of Rajasthan (Handmade in Rajasthan)",
+    "source_url": "https://handmadeinrajasthan.rajasthan.gov.in/content/industries/handmadeinrajasthandepartment/artandcraft/bluepottery/bluepottery-jaipur.html",
+    "supported_facts": [
+      "Blue Pottery of Jaipur has Turko-Persian origins and was patronized in Jaipur under Maharaja Sawai Ram Singh II.",
+      "Because the composition contains no ordinary clay, the pottery does not develop typical clay-shrinkage cracks.",
+      "The signature dark blue and azure colors are obtained from cobalt oxide, while turquoise and green tones are obtained from copper oxide.",
+      "Traditional floral, bird, and geometric motifs are hand-painted with fine brushes over a white ground coat (astar).",
+      "Glazed pieces undergo a single low-temperature firing in a kiln (bhatti), creating a vitrified, semi-transparent finish suited for vases, surahis, tiles, plates, and bowls."
+    ],
     "steps": [
-      "Wash raw mulberry silk threads (kaccha resham) in warm water with rock salt and soda ash, then dye with natural colors.",
-      "Set up the warp (tana) on the handloom using three shuttles (teen dhote) for the Kadiyal interlocking border technique.",
-      "Interlock the border warp and body weft threads manually on the reverse side so both sides of the saree look identical.",
-      "Weave the Bangadi Mor (peacock in a bangle) motif on the pallu using small bamboo spindles (tilli) with 24-karat gold-plated silver zari."
+      "Apply an even white quartz-and-glass ground slip (astar) over the smoothed dry vessel and allow it to dry.",
+      "Outline and fill floral, bird, and geometric motifs by hand using fine brushes and metallic oxide pigments (cobalt oxide for blue, copper oxide for turquoise/green).",
+      "Coat the painted vessel with a transparent glass-based glaze.",
+      "Fire the glazed pieces in a single low-temperature kiln (bhatti) firing until the glass vitrifies."
     ],
     "materials": [
-      "Raw mulberry silk (kaccha resham)",
-      "24-karat gold-plated silver zari",
-      "Three wooden shuttles (teen dhote)",
-      "Bamboo spindles (tilli)",
-      "Rock salt and soda ash"
+      "White quartz ground slip (astar)",
+      "Cobalt oxide (dark and azure blue)",
+      "Copper oxide (turquoise and green)",
+      "Glass-based glaze",
+      "Fine painting brushes"
     ],
-    "artisan_name": "Shantabai Kulkarni (DEMO)",
-    "language": "mr-IN",
-    "source_audio": "demo_shantabai_paithani_seg2.wav",
-    "segment": "Segment 2 (01:20 - 02:45)",
-    "transcript": "Namaskar, mi Shantabai Kulkarni, Yeola Paithani vinkar. Paithani saadi banavtana kachha resham garam panyat saindha namak aani khar takun dhuvun gheto. Kadiyal kathasathi magavar teen dhote vaparle jatat, jyamule kath aani pot ekach veli vinle jatat. Pallu var Bangadi Mor kadhnyasathi bambuchya lahan tillya aani chandi var sone chadhavleli zari vaparto. Paithani chi visheshta mhanje ulat aani sulat donhi bajunni saadi sarkhich diste.",
-    "created_at": "2026-11-03T10:15:00Z",
-    "is_demo": true
+    "artisan_name": null,
+    "language": "en-IN",
+    "source_audio": null,
+    "segment": "Section: Art and Craft — Blue Pottery of Jaipur",
+    "excerpt": "Documented Craft Overview (Department of Industries & Commerce, Government of Rajasthan): Jaipur Blue Pottery is a Turko-Persian craft tradition patronized in Jaipur under Maharaja Sawai Ram Singh II. Its signature dark and azure blue colors are derived from cobalt oxide, and its turquoise and green shades come from copper oxide. Motifs are hand-painted over a white slip, coated with glaze, and single-fired at low temperature in a kiln without developing clay-shrinkage cracks.",
+    "transcript": "Documented Craft Overview (Department of Industries & Commerce, Government of Rajasthan): Jaipur Blue Pottery is a Turko-Persian craft tradition patronized in Jaipur under Maharaja Sawai Ram Singh II. Its signature dark and azure blue colors are derived from cobalt oxide, and its turquoise and green shades come from copper oxide. Motifs are hand-painted over a white slip, coated with glaze, and single-fired at low temperature in a kiln without developing clay-shrinkage cracks.",
+    "created_at": "2026-11-03T12:05:00Z",
+    "is_demo": false
+  },
+  {
+    "id": "src-paithani-sahapedia-01",
+    "craft": "Paithani Weaving",
+    "technique": "Tapestry Weft Interlocking, Reversible Construction, and Bangadi Mor Motif",
+    "record_type": "institutional_documentation",
+    "verification_status": "verified",
+    "source_title": "Paithani Saree: Woven Histories of Maharashtra",
+    "source_organization": "Sahapedia (Open Online Resource on the Arts and Cultures of India)",
+    "source_url": "https://www.sahapedia.org/paithani-saree-woven-histories-of-maharashtra",
+    "supported_facts": [
+      "Paithani weaving originated in ancient Paithan (Pratishthana) under the Satavahanas and later established its primary handloom center in Yeola (Nashik district, Maharashtra).",
+      "Paithani sarees are woven using a handloom tapestry weft-interlocking technique where colored silk and zari weft threads are interlocked manually.",
+      "Because of tapestry interlocking, there are no loose floating threads on the reverse side, making the saree reversible with a nearly identical pattern on both front and back.",
+      "The iconic Bangadi Mor motif features a bangle (bangdi) enclosing a lotus flower surrounded by four dancing peacocks (mor).",
+      "Other documented traditional motifs include Munia (parrot) on borders, Asawali (flowering vine/creeper), and lotus designs inspired by the Ajanta Caves."
+    ],
+    "steps": [
+      "Stretch the dyed mulberry silk warp (tana) across the handloom.",
+      "Weave the figured pallu and motifs using the tapestry technique, manually interlocking each colored silk and zari weft thread.",
+      "Ensure every weft interlock is tucked cleanly so no loose floating threads appear on the reverse side of the saree.",
+      "Weave traditional motifs such as Bangadi Mor (four peacocks inside a bangle ring), Munia (parrot), and Asawali (flowering vines)."
+    ],
+    "materials": [
+      "Mulberry silk warp and weft threads",
+      "Gold and silver metallic zari threads",
+      "Handloom and small tapestry bobbins/spindles"
+    ],
+    "artisan_name": null,
+    "language": "en-IN",
+    "source_audio": null,
+    "segment": "Module: Technique, Motifs, and Woven Histories of Maharashtra",
+    "excerpt": "Documented Craft History & Technique (Sahapedia): Originating in ancient Pratishthana (Paithan) and flourishing in Yeola, Maharashtra, authentic Paithani handloom weaving uses a tapestry weft-interlocking technique. Colored mulberry silk and zari wefts are interlocked manually thread by thread so no loose floats remain on the reverse side, making both sides of the saree look nearly identical. Documented traditional motifs include the Bangadi Mor (four peacocks around a lotus inside a bangle shape), Munia (parrot), and Asawali (flowering vine).",
+    "transcript": "Documented Craft History & Technique (Sahapedia): Originating in ancient Pratishthana (Paithan) and flourishing in Yeola, Maharashtra, authentic Paithani handloom weaving uses a tapestry weft-interlocking technique. Colored mulberry silk and zari wefts are interlocked manually thread by thread so no loose floats remain on the reverse side, making both sides of the saree look nearly identical. Documented traditional motifs include the Bangadi Mor (four peacocks around a lotus inside a bangle shape), Munia (parrot), and Asawali (flowering vine).",
+    "created_at": "2026-11-03T12:10:00Z",
+    "is_demo": false
+  },
+  {
+    "id": "src-paithani-craftmark-02",
+    "craft": "Paithani Weaving",
+    "technique": "Mulberry Silk Degumming, Kadiyal Interlocking Border, and Zari Pallu Weaving",
+    "record_type": "institutional_documentation",
+    "verification_status": "verified",
+    "source_title": "Craftmark Process Standards: Paithani Weaving",
+    "source_organization": "All India Artisans and Craftworkers Welfare Association (AIACA) — Craftmark",
+    "source_url": "http://www.craftmark.org/cms/public/uploads/1595673685.pdf",
+    "supported_facts": [
+      "Authentic handloom Paithani weaving uses pure mulberry silk for warp (tana) and weft (bana) along with fine metallic zari threads for borders and pallu.",
+      "Raw silk yarn is degummed/washed in warm alkaline water, dyed in fast colors, and wound onto reels and small bamboo spindles/bobbins (tilli) prior to loom warping.",
+      "In the Kadiyal interlocking border technique, shuttles (dhote) interlock the contrasting border warp and body weft threads along the selvedge without extra sewing."
+    ],
+    "steps": [
+      "Degum and wash raw mulberry silk bundles in warm alkaline solution, then dye the yarn in vibrant fast colors.",
+      "Reel the dyed silk yarn and set up the warp (tana) on a traditional pit loom or frame handloom.",
+      "Use shuttles (dhote) for the Kadiyal border technique to interlock the border threads with the main body weft.",
+      "Interlace metallic zari and colored silk threads with small bamboo spindles (tilli) to form the dense zari pallu."
+    ],
+    "materials": [
+      "Pure mulberry silk (kaccha resham)",
+      "Gold-plated silver zari",
+      "Handloom shuttles (dhote)",
+      "Small bamboo spindles/bobbins (tilli)"
+    ],
+    "artisan_name": null,
+    "language": "en-IN",
+    "source_audio": null,
+    "segment": "Section: Paithani Handloom Process & Material Standards",
+    "excerpt": "Documented Process Standard (AIACA Craftmark): Authentic handloom Paithani weaving in Maharashtra uses pure mulberry silk for the warp and weft alongside metallic zari threads. Degummed and dyed silk yarns are warped on traditional handlooms where weavers interlock contrasting Kadiyal borders using shuttles (dhote) and weave figured zari pallus using small bamboo spindles/bobbins (tilli).",
+    "transcript": "Documented Process Standard (AIACA Craftmark): Authentic handloom Paithani weaving in Maharashtra uses pure mulberry silk for the warp and weft alongside metallic zari threads. Degummed and dyed silk yarns are warped on traditional handlooms where weavers interlock contrasting Kadiyal borders using shuttles (dhote) and weave figured zari pallus using small bamboo spindles/bobbins (tilli).",
+    "created_at": "2026-11-03T12:15:00Z",
+    "is_demo": false
   }
 ]

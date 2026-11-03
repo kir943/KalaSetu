@@ -28,16 +28,17 @@ def test_mcp_tools_independently(tmp_path: Path):
             "method": "tools/call",
             "params": {
                 "name": "search_archive",
-                "arguments": {"query": "powdered quartz stone katira gum", "craft": "Blue Pottery"},
+                "arguments": {"query": "powdered quartz stone Katira Gond Multani Mitti", "craft": "Blue Pottery"},
             },
         },
         archive_path=temp_archive,
     )
     assert search_resp["result"]["isError"] is False
     hits = search_resp["result"]["structuredContent"]
-    assert len(hits) == 1
-    assert hits[0]["id"] == "demo-blue-pottery-01"
-    assert "Ramesh Kumar Kumhar (DEMO)" in hits[0]["citation"]
+    assert len(hits) >= 1
+    assert hits[0]["id"] == "src-blue-pottery-dsource-01"
+    assert "D'source" in hits[0]["citation"]
+    assert "https://www.dsource.in/resource/blue-pottery-jaipur/making-process" in hits[0]["citation"]
 
     # 3. Test MCP tool 2: add_oral_entry
     add_resp = handle_jsonrpc_message(
@@ -185,14 +186,29 @@ def test_complete_end_to_end_demo_flow(tmp_path: Path):
         assert ask_unans_data["answer"] == NO_SOURCE_FALLBACK
         assert ask_unans_data["citations"] == []
 
-        # Step 5: Click Listen -> confirm Bulbul audio returned for grounded answer
+        # Step 5: Click Listen -> confirm translation + Bulbul audio returned for grounded answer
+        mock_trans = MagicMock()
+        mock_trans.status_code = 200
+        mock_trans.json.return_value = {
+            "id": "chat-trans-e2e-1",
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": "वसंतराव देशमुख यांच्या मते, चांदीच्या जरीची तार २४ कॅरेट सोन्याच्या पाण्यात बुडवली जाते.",
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
+        }
         mock_tts = MagicMock()
         mock_tts.status_code = 200
         mock_tts.json.return_value = {
             "request_id": "tts-e2e-1",
             "audios": ["UklGRvAZAwBXQVZFZm10IBAAAAABAA=="],
         }
-        with patch("backend.tts.httpx.post", return_value=mock_tts):
+        with patch("backend.tts.httpx.post", side_effect=[mock_trans, mock_tts]):
             tts_resp = client.post(
                 "/api/tts",
                 json={
@@ -201,4 +217,7 @@ def test_complete_end_to_end_demo_flow(tmp_path: Path):
                 },
             )
             assert tts_resp.status_code == 200
-            assert tts_resp.json()["audio_base64"].startswith("UklGR")
+            tts_data = tts_resp.json()
+            assert tts_data["audio_base64"].startswith("UklGR")
+            assert tts_data["translated"] is True
+            assert "वसंतराव देशमुख" in tts_data["spoken_text"]

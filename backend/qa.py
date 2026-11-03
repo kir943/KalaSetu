@@ -13,19 +13,30 @@ NO_SOURCE_FALLBACK = "Mere paas iska source nahi hai."
 def _build_evidence_context(entries: list[dict[str, Any]]) -> str:
     blocks = []
     for idx, entry in enumerate(entries, start=1):
-        steps_str = "; ".join(entry.get("steps", []))
-        materials_str = ", ".join(entry.get("materials", []))
+        steps_str = "; ".join(entry.get("steps") or [])
+        materials_str = ", ".join(entry.get("materials") or [])
+        facts_str = "; ".join(entry.get("supported_facts") or [])
+        excerpt_text = entry.get("excerpt") or entry.get("transcript") or ""
+        artisan_line = (
+            f"Artisan Name: {entry['artisan_name']}\n"
+            f"Source Recording: {entry.get('source_audio')}\n"
+            if entry.get("artisan_name")
+            else "Record Type: Institutional Documentation (Do NOT attribute to a fictional artisan)\n"
+        )
         block = (
-            f"[Source {idx}]\n"
-            f"Artisan Name: {entry.get('artisan_name')}\n"
+            f"[Source {idx} — ID: {entry.get('id')}]\n"
             f"Craft: {entry.get('craft')}\n"
             f"Technique: {entry.get('technique')}\n"
-            f"Source Recording: {entry.get('source_audio')}\n"
+            f"Source Title: {entry.get('source_title') or 'Oral Archive Contribution'}\n"
+            f"Organization/Publisher: {entry.get('source_organization') or 'KalaSetu Archive'}\n"
+            f"Source URL: {entry.get('source_url') or 'N/A (Local Audio Recording)'}\n"
+            f"{artisan_line}"
             f"Source Segment: {entry.get('segment')}\n"
             f"Citation: {entry.get('citation')}\n"
+            f"Supported Facts: {facts_str}\n"
             f"Materials: {materials_str}\n"
             f"Steps: {steps_str}\n"
-            f"Original Transcript: {entry.get('transcript')}\n"
+            f"Verified Excerpt / Transcript: {excerpt_text}\n"
         )
         blocks.append(block)
     return "\n\n".join(blocks)
@@ -34,17 +45,31 @@ def _build_evidence_context(entries: list[dict[str, Any]]) -> str:
 def _synthesize_deterministic_grounded_answer(entries: list[dict[str, Any]]) -> str:
     """
     Constructs a strictly archive-backed summary from retrieved entries (used when
-    use_llm=False in fast offline unit tests).
+    use_llm=False in fast offline unit tests). Never invents artisan names or quotes.
     """
     parts = []
     for entry in entries:
-        steps_str = " ".join(entry.get("steps", []))
-        materials_str = ", ".join(entry.get("materials", []))
-        parts.append(
-            f"According to {entry['artisan_name']} ({entry['source_audio']}, {entry['segment']}): "
-            f"{entry['technique']}. Materials: {materials_str}. Steps: {steps_str} "
-            f"Transcript: \"{entry['transcript']}\""
-        )
+        steps_str = " ".join(entry.get("steps") or [])
+        materials_str = ", ".join(entry.get("materials") or [])
+        facts_str = " ".join(entry.get("supported_facts") or [])
+        excerpt_text = entry.get("excerpt") or entry.get("transcript") or ""
+
+        if entry.get("artisan_name") and entry.get("source_audio"):
+            parts.append(
+                f"According to {entry['artisan_name']} ({entry['source_audio']}, {entry.get('segment', 'Segment 1')}): "
+                f"{entry['technique']}. Materials: {materials_str}. Steps: {steps_str} "
+                f"Transcript: \"{excerpt_text}\""
+            )
+        else:
+            source_title = entry.get("source_title") or entry["id"]
+            source_org = entry.get("source_organization") or "Institutional Source"
+            segment = entry.get("segment") or "Documented Section"
+            parts.append(
+                f"According to {source_title} ({source_org}, {segment}): "
+                f"{entry['technique']}. Supported facts: {facts_str} "
+                f"Materials: {materials_str}. Steps: {steps_str} "
+                f"Documented excerpt: \"{excerpt_text}\""
+            )
     citations_str = " | ".join(e["citation"] for e in entries)
     return "\n\n".join(parts) + f"\n\nSource: {citations_str}"
 
@@ -60,13 +85,14 @@ def call_sarvam_chat(question: str, entries: list[dict[str, Any]]) -> str:
 
     evidence_text = _build_evidence_context(entries)
     system_prompt = (
-        "You are KalaSetu, a voice-first artisan archive assistant.\n"
+        "You are KalaSetu, a strictly source-grounded Indian craft archive assistant.\n"
         "STRICT GROUNDING RULES:\n"
         "1. Answer the learner's question using ONLY the facts explicitly stated in the ARCHIVE EVIDENCE below.\n"
         "2. Do NOT use outside world knowledge, assumptions, or unrecorded facts.\n"
-        "3. If the ARCHIVE EVIDENCE does not answer the learner's specific question, output ONLY this exact sentence and nothing else:\n"
+        "3. Do NOT invent artisan names, first-person quotes, or audio recordings. If a source is institutional documentation, cite its Source Title and Organization/Publisher.\n"
+        "4. If the ARCHIVE EVIDENCE does not answer the learner's specific question, output ONLY this exact sentence and nothing else:\n"
         f"{NO_SOURCE_FALLBACK}\n"
-        "4. In every grounded answer, clearly state the factual details from the archive and cite the artisan name, recording filename, and segment."
+        "5. In every grounded answer, clearly state the factual details from the archive and cite the supporting source title/organization (or artisan/recording for oral entries) and entry ID."
     )
     user_prompt = (
         f"ARCHIVE EVIDENCE:\n{evidence_text}\n\n"
@@ -137,6 +163,7 @@ def answer_learner_question(
             "grounded": False,
             "answer": NO_SOURCE_FALLBACK,
             "citations": [],
+            "source_links": [],
             "sources": [],
             "model": None,
         }
@@ -153,6 +180,7 @@ def answer_learner_question(
             "grounded": False,
             "answer": NO_SOURCE_FALLBACK,
             "citations": [],
+            "source_links": [],
             "sources": [],
             "model": SARVAM_CHAT_MODEL if use_llm else "deterministic-archive",
         }
@@ -165,16 +193,37 @@ def answer_learner_question(
     else:
         final_answer = raw_answer
 
+    source_links = [
+        {
+            "id": e["id"],
+            "source_title": e.get("source_title"),
+            "source_organization": e.get("source_organization"),
+            "source_url": e.get("source_url"),
+        }
+        for e in retrieved
+        if e.get("source_url")
+    ]
+
     sources = [
         {
             "id": e["id"],
+            "record_type": e.get(
+                "record_type",
+                "institutional_documentation" if e.get("source_title") and not e.get("artisan_name") else "oral_contribution",
+            ),
+            "verification_status": e.get("verification_status", "verified"),
             "craft": e["craft"],
             "technique": e["technique"],
-            "artisan_name": e["artisan_name"],
-            "language": e["language"],
-            "source_audio": e["source_audio"],
-            "segment": e["segment"],
-            "transcript": e["transcript"],
+            "source_title": e.get("source_title"),
+            "source_organization": e.get("source_organization"),
+            "source_url": e.get("source_url"),
+            "supported_facts": e.get("supported_facts", []),
+            "excerpt": e.get("excerpt") or e.get("transcript", ""),
+            "artisan_name": e.get("artisan_name"),
+            "language": e.get("language", "en-IN"),
+            "source_audio": e.get("source_audio"),
+            "segment": e.get("segment", ""),
+            "transcript": e.get("transcript", ""),
             "steps": e.get("steps", []),
             "materials": e.get("materials", []),
             "is_demo": bool(e.get("is_demo", False)),
@@ -189,57 +238,63 @@ def answer_learner_question(
         "grounded": True,
         "answer": final_answer,
         "citations": citations,
+        "source_links": source_links,
         "sources": sources,
         "model": SARVAM_CHAT_MODEL if use_llm else "deterministic-archive",
     }
 
 
 GROUNDING_TEST_CASES: list[dict[str, Any]] = [
-    # 5 Answerable from Archive
+    # 5 Answerable from Verified Institutional Archive Sources
     {
         "id": "TC-01",
         "craft": "Blue Pottery",
-        "question": "How many parts of powdered quartz stone, katira gum, and multani mitti are mixed in Blue Pottery?",
+        "question": "Why is Jaipur Blue Pottery considered clay-free and what raw materials are mixed to prepare its dough?",
         "expected_answerable": True,
-        "expected_artisan": "Ramesh Kumar Kumhar (DEMO)",
-        "expected_audio": "demo_ramesh_blue_pottery_seg1.wav",
-        "expected_segment": "Segment 1",
+        "expected_entry_id": "src-blue-pottery-dsource-01",
+        "expected_source_title": "Blue Pottery of Jaipur — Tools, Raw Materials, and Making Process",
+        "expected_organization": "D'source (IDC School of Design, IIT Bombay & NID Digital Learning Initiative)",
+        "expected_url": "https://www.dsource.in/resource/blue-pottery-jaipur/making-process",
     },
     {
         "id": "TC-02",
         "craft": "Blue Pottery",
-        "question": "Does Jaipur Blue Pottery use regular potter's clay (mitti), and how many hours is the dough kept in a damp cloth?",
+        "question": "How are Plaster of Paris (POP) moulds and wood turning ash used in shaping Blue Pottery vessels?",
         "expected_answerable": True,
-        "expected_artisan": "Ramesh Kumar Kumhar (DEMO)",
-        "expected_audio": "demo_ramesh_blue_pottery_seg1.wav",
-        "expected_segment": "Segment 1",
+        "expected_entry_id": "src-blue-pottery-dsource-01",
+        "expected_source_title": "Blue Pottery of Jaipur — Tools, Raw Materials, and Making Process",
+        "expected_organization": "D'source (IDC School of Design, IIT Bombay & NID Digital Learning Initiative)",
+        "expected_url": "https://www.dsource.in/resource/blue-pottery-jaipur/making-process",
     },
     {
         "id": "TC-03",
         "craft": "Blue Pottery",
-        "question": "At what temperature in degrees Celsius and for how many hours is Blue Pottery fired in the wood kiln (bhatti)?",
+        "question": "Which metallic oxides produce the dark blue and turquoise colors on Jaipur Blue Pottery, and how is it glazed and fired?",
         "expected_answerable": True,
-        "expected_artisan": "Ramesh Kumar Kumhar (DEMO)",
-        "expected_audio": "demo_ramesh_blue_pottery_seg1.wav",
-        "expected_segment": "Segment 1",
+        "expected_entry_id": "src-blue-pottery-rajgov-02",
+        "expected_source_title": "Blue Pottery of Jaipur — Art and Craft Documentation",
+        "expected_organization": "Department of Industries & Commerce, Government of Rajasthan (Handmade in Rajasthan)",
+        "expected_url": "https://handmadeinrajasthan.rajasthan.gov.in/content/industries/handmadeinrajasthandepartment/artandcraft/bluepottery/bluepottery-jaipur.html",
     },
     {
         "id": "TC-04",
         "craft": "Paithani Weaving",
-        "question": "How many wooden shuttles (dhote) are used on the handloom for the Kadiyal interlocking border?",
+        "question": "Why is a Paithani saree reversible with no floating threads on the back, and what is the Bangadi Mor motif?",
         "expected_answerable": True,
-        "expected_artisan": "Shantabai Kulkarni (DEMO)",
-        "expected_audio": "demo_shantabai_paithani_seg2.wav",
-        "expected_segment": "Segment 2",
+        "expected_entry_id": "src-paithani-sahapedia-01",
+        "expected_source_title": "Paithani Saree: Woven Histories of Maharashtra",
+        "expected_organization": "Sahapedia (Open Online Resource on the Arts and Cultures of India)",
+        "expected_url": "https://www.sahapedia.org/paithani-saree-woven-histories-of-maharashtra",
     },
     {
         "id": "TC-05",
         "craft": "Paithani Weaving",
-        "question": "How is the Bangadi Mor motif woven on the pallu and what kind of gold-plated silver zari and bamboo spindles (tilli) are used?",
+        "question": "How are raw mulberry silk degumming, Kadiyal border interlocking with three shuttles, and tilli bobbins used in Paithani weaving?",
         "expected_answerable": True,
-        "expected_artisan": "Shantabai Kulkarni (DEMO)",
-        "expected_audio": "demo_shantabai_paithani_seg2.wav",
-        "expected_segment": "Segment 2",
+        "expected_entry_id": "src-paithani-craftmark-02",
+        "expected_source_title": "Craftmark Process Standards: Paithani Weaving",
+        "expected_organization": "All India Artisans and Craftworkers Welfare Association (AIACA) — Craftmark",
+        "expected_url": "http://www.craftmark.org/cms/public/uploads/1595673685.pdf",
     },
     # 5 Unanswerable (Not in Archive)
     {
@@ -251,7 +306,7 @@ GROUNDING_TEST_CASES: list[dict[str, Any]] = [
     {
         "id": "TC-07",
         "craft": "Blue Pottery",
-        "question": "Which king originally invited Blue Pottery artisans from Persia to Jaipur in the 19th century?",
+        "question": "Which airline cargo carrier offers discounted freight rates for shipping Blue Pottery overseas?",
         "expected_answerable": False,
     },
     {
@@ -282,7 +337,7 @@ def run_grounding_benchmark(
     """
     Run the 10-question grounding evaluation (5 answerable, 5 unanswerable).
     Pass criteria:
-    - Answerable: grounded=True, answer != fallback, and expected artisan, source_audio, and segment are cited.
+    - Answerable: grounded=True, answer != fallback, and expected entry ID, source_title, organization, and URL are cited.
     - Unanswerable: grounded=False, answer == 'Mere paas iska source nahi hai.', and citations == [].
     """
     results = []
@@ -297,15 +352,19 @@ def run_grounding_benchmark(
         )
         if tc["expected_answerable"]:
             cite_blob = " ".join(res["citations"])
-            has_artisan = tc["expected_artisan"] in cite_blob and tc["expected_artisan"] in res["answer"]
-            has_audio = tc["expected_audio"] in cite_blob and tc["expected_audio"] in res["answer"]
-            has_segment = tc["expected_segment"] in cite_blob and tc["expected_segment"] in res["answer"]
+            source_ids = [s["id"] for s in res["sources"]]
+            source_urls = [s.get("source_url") for s in res["sources"]]
+            has_entry = tc["expected_entry_id"] in source_ids and tc["expected_entry_id"] in cite_blob
+            has_title = tc["expected_source_title"] in cite_blob and tc["expected_source_title"] in res["answer"]
+            has_org = tc["expected_organization"] in cite_blob
+            has_url = tc["expected_url"] in source_urls and tc["expected_url"] in cite_blob
             passed = (
                 res["grounded"] is True
                 and res["answer"] != NO_SOURCE_FALLBACK
-                and has_artisan
-                and has_audio
-                and has_segment
+                and has_entry
+                and has_title
+                and has_org
+                and has_url
             )
         else:
             passed = (
@@ -326,6 +385,7 @@ def run_grounding_benchmark(
             "grounded": res["grounded"],
             "answer": res["answer"],
             "citations": res["citations"],
+            "source_links": res.get("source_links", []),
             "passed": passed,
         })
 
@@ -335,8 +395,8 @@ def run_grounding_benchmark(
         "passed": passed_count,
         "pass_rate": f"{passed_count}/{total} ({int((passed_count / total) * 100)}%)",
         "pass_criteria": (
-            "Answerable (5): Must retrieve matching archive entry, generate an answer grounded in the source, "
-            "and cite exact artisan name, source audio filename, and segment. "
+            "Answerable (5): Must retrieve matching verified archive entry, generate an answer grounded in the source, "
+            "and cite exact source title, publisher/organization, URL, and entry ID. "
             "Unanswerable (5): Must return exact 'Mere paas iska source nahi hai.' with zero fabricated citations."
         ),
         "results": results,

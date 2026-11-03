@@ -40,11 +40,24 @@ def load_archive(archive_path: Optional[Path] = None) -> list[dict[str, Any]]:
 
 
 def format_citation(entry: dict[str, Any]) -> str:
-    artisan = entry.get("artisan_name", "Unknown Artisan")
-    audio = entry.get("source_audio", "unknown_source")
-    segment = entry.get("segment", "unknown_segment")
     entry_id = entry.get("id", "unknown_id")
-    return f"{artisan} — {audio}, {segment} [ID: {entry_id}]"
+    segment = entry.get("segment") or "Documented Section"
+    artisan = entry.get("artisan_name")
+    audio = entry.get("source_audio")
+    source_title = entry.get("source_title")
+    source_org = entry.get("source_organization")
+    source_url = entry.get("source_url")
+
+    if artisan and audio:
+        url_part = f" | {source_url}" if source_url else ""
+        return f"{artisan} — {audio}, {segment}{url_part} [ID: {entry_id}]"
+
+    if source_title:
+        org_part = f" — {source_org}" if source_org else ""
+        url_part = f" | {source_url}" if source_url else ""
+        return f"{source_title}{org_part} ({segment}){url_part} [ID: {entry_id}]"
+
+    return f"{artisan or 'Unknown Source'} — {audio or 'unknown_source'}, {segment} [ID: {entry_id}]"
 
 
 def _normalize_token(token: str) -> str:
@@ -71,11 +84,15 @@ def _tokenize(text: str) -> list[str]:
 
 def _entry_searchable_tokens(entry: dict[str, Any]) -> set[str]:
     fields = [
-        entry.get("technique", ""),
-        " ".join(entry.get("steps", [])),
-        " ".join(entry.get("materials", [])),
-        entry.get("transcript", ""),
-        entry.get("artisan_name", ""),
+        str(entry.get("technique") or ""),
+        " ".join(entry.get("steps") or []),
+        " ".join(entry.get("materials") or []),
+        " ".join(entry.get("supported_facts") or []),
+        str(entry.get("excerpt") or ""),
+        str(entry.get("transcript") or ""),
+        str(entry.get("source_title") or ""),
+        str(entry.get("source_organization") or ""),
+        str(entry.get("artisan_name") or ""),
     ]
     combined = " ".join(fields)
     raw = _tokenize(combined)
@@ -90,13 +107,17 @@ def search_archive(
 ) -> list[dict[str, Any]]:
     """
     Search archive entries using keyword matching.
+    Excludes any entry marked with verification_status == 'needs_source'.
     Returns matching entries sorted by relevance score, each enriched with a 'citation' field.
     If no specific evidence matches the query, returns an empty list [].
     """
     if not query or not query.strip():
         return []
 
-    entries = load_archive(archive_path)
+    entries = [
+        e for e in load_archive(archive_path)
+        if e.get("verification_status", "verified") != "needs_source"
+    ]
     if craft:
         craft_clean = craft.strip().lower()
         entries = [
@@ -151,8 +172,8 @@ def get_lesson(
     archive_path: Optional[Path] = None,
 ) -> dict[str, Any]:
     """
-    Assemble a structured lesson strictly from archived artisan entries for the given craft
-    (and optional technique filter), preserving citations and never inventing details.
+    Assemble a structured lesson strictly from verified archived entries for the given craft
+    (and optional technique filter), preserving citations, source URLs, and supported facts.
     """
     if not craft or not craft.strip():
         return {
@@ -162,9 +183,13 @@ def get_lesson(
             "message": "Mere paas iska source nahi hai.",
             "lessons": [],
             "citations": [],
+            "source_links": [],
         }
 
-    entries = load_archive(archive_path)
+    entries = [
+        e for e in load_archive(archive_path)
+        if e.get("verification_status", "verified") != "needs_source"
+    ]
     craft_clean = craft.strip().lower()
     matched = [
         e for e in entries
@@ -175,7 +200,11 @@ def get_lesson(
         tech_tokens = _tokenize(technique)
         filtered = []
         for e in matched:
-            tech_text = (e.get("technique", "") + " " + e.get("transcript", "")).lower()
+            tech_text = (
+                str(e.get("technique") or "") + " " +
+                str(e.get("excerpt") or "") + " " +
+                str(e.get("transcript") or "")
+            ).lower()
             entry_tech_tokens = _entry_searchable_tokens(e)
             if technique.strip().lower() in tech_text or (
                 tech_tokens and all(
@@ -194,23 +223,39 @@ def get_lesson(
             "message": "Mere paas iska source nahi hai.",
             "lessons": [],
             "citations": [],
+            "source_links": [],
         }
 
     lessons = []
     citations = []
+    source_links = []
     for entry in matched:
         cite = format_citation(entry)
         citations.append(cite)
+        if entry.get("source_url"):
+            source_links.append({
+                "entry_id": entry["id"],
+                "source_title": entry.get("source_title"),
+                "source_organization": entry.get("source_organization"),
+                "source_url": entry.get("source_url"),
+            })
         lessons.append({
             "entry_id": entry["id"],
+            "record_type": entry.get("record_type", "institutional_documentation" if entry.get("source_title") else "oral_contribution"),
+            "verification_status": entry.get("verification_status", "verified"),
             "craft": entry["craft"],
             "technique": entry["technique"],
-            "artisan_name": entry["artisan_name"],
-            "language": entry["language"],
+            "source_title": entry.get("source_title"),
+            "source_organization": entry.get("source_organization"),
+            "source_url": entry.get("source_url"),
+            "supported_facts": list(entry.get("supported_facts", [])),
+            "excerpt": entry.get("excerpt") or entry.get("transcript", ""),
+            "artisan_name": entry.get("artisan_name"),
+            "language": entry.get("language", "en-IN"),
             "steps": list(entry.get("steps", [])),
             "materials": list(entry.get("materials", [])),
             "transcript": entry.get("transcript", ""),
-            "source_audio": entry.get("source_audio", ""),
+            "source_audio": entry.get("source_audio"),
             "segment": entry.get("segment", ""),
             "is_demo": bool(entry.get("is_demo", False)),
             "citation": cite,
@@ -222,6 +267,7 @@ def get_lesson(
         "found": True,
         "lessons": lessons,
         "citations": citations,
+        "source_links": source_links,
     }
 
 
@@ -259,18 +305,37 @@ def add_oral_entry(
     entry_id = str(entry.get("id", "")).strip() or f"oral-{uuid.uuid4().hex[:8]}"
     language = str(entry.get("language", "hi-IN")).strip() or "hi-IN"
     created_at = str(entry.get("created_at", "")).strip() or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    transcript_str = str(entry["transcript"]).strip()
+    artisan_str = str(entry["artisan_name"]).strip()
+    audio_str = str(entry["source_audio"]).strip()
+    segment_str = str(entry["segment"]).strip()
+    source_title = str(entry.get("source_title") or f"Oral Recording by {artisan_str}").strip()
+    source_org = str(entry.get("source_organization") or "KalaSetu Reviewed Artisan Audio Contribution").strip()
+    source_url = str(entry.get("source_url") or "").strip() or None
+    verification_status = (
+        "needs_source"
+        if entry.get("verification_status") == "needs_source" or entry.get("needs_source") is True
+        else "verified"
+    )
 
     new_record: dict[str, Any] = {
         "id": entry_id,
+        "record_type": str(entry.get("record_type") or "oral_contribution"),
+        "verification_status": verification_status,
         "craft": str(entry["craft"]).strip(),
         "technique": str(entry["technique"]).strip(),
+        "source_title": source_title,
+        "source_organization": source_org,
+        "source_url": source_url,
+        "supported_facts": _normalize_string_list(entry.get("supported_facts")) or _normalize_string_list(entry.get("steps")),
         "steps": _normalize_string_list(entry.get("steps")),
         "materials": _normalize_string_list(entry.get("materials")),
-        "artisan_name": str(entry["artisan_name"]).strip(),
+        "artisan_name": artisan_str,
         "language": language,
-        "source_audio": str(entry["source_audio"]).strip(),
-        "segment": str(entry["segment"]).strip(),
-        "transcript": str(entry["transcript"]).strip(),
+        "source_audio": audio_str,
+        "segment": segment_str,
+        "excerpt": str(entry.get("excerpt") or transcript_str).strip(),
+        "transcript": transcript_str,
         "created_at": created_at,
         "is_demo": bool(entry.get("is_demo", False)),
     }
